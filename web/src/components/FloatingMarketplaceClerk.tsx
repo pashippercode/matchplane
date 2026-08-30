@@ -2,6 +2,11 @@
 
 import { Button } from "@appica/ui-react/button";
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@appica/ui-react/collapsible";
+import {
   Drawer,
   DrawerBody,
   DrawerClose,
@@ -10,22 +15,16 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@appica/ui-react/drawer";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@appica/ui-react/collapsible";
 import { useMediaQuery } from "@appica/ui-react/hooks/use-media-query";
 import {
   GripHorizontal,
   Maximize2,
-  Search,
   Minimize2,
+  Search,
   X,
 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { Rnd } from "react-rnd";
 
 import type { InterfaceLocale } from "../lib/preferences";
 
@@ -33,51 +32,36 @@ interface FloatingMarketplaceClerkProps {
   open: boolean;
   locale: InterfaceLocale;
   onOpenChange: (open: boolean) => void;
+  launcherLabel?: string;
   children: ReactNode;
-}
-
-interface ClerkLayout {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
 }
 
 const VIEWPORT_GUTTER = 16;
 const COLLAPSED_HEIGHT = 68;
+const DEFAULT_WIDTH = 400;
+const DEFAULT_HEIGHT = 560;
 
-function initialLayout(): ClerkLayout {
+function desktopPanelStyle(collapsed: boolean): CSSProperties {
   if (typeof window === "undefined") {
-    return { x: VIEWPORT_GUTTER, y: VIEWPORT_GUTTER, width: 400, height: 560 };
+    return {
+      position: "fixed",
+      right: 24,
+      bottom: 24,
+      width: DEFAULT_WIDTH,
+      height: collapsed ? COLLAPSED_HEIGHT : DEFAULT_HEIGHT,
+    };
   }
-  const width = Math.min(400, window.innerWidth - VIEWPORT_GUTTER * 2);
-  const height = Math.min(560, window.innerHeight - VIEWPORT_GUTTER * 2);
-  return {
-    width,
-    height,
-    x: Math.max(VIEWPORT_GUTTER, window.innerWidth - width - 24),
-    y: Math.max(VIEWPORT_GUTTER, window.innerHeight - height - 24),
-  };
-}
-
-function clampLayout(layout: ClerkLayout): ClerkLayout {
-  if (typeof window === "undefined") return layout;
-  const width = Math.min(layout.width, window.innerWidth - VIEWPORT_GUTTER * 2);
+  const width = Math.min(DEFAULT_WIDTH, window.innerWidth - VIEWPORT_GUTTER * 2);
   const height = Math.min(
-    layout.height,
+    collapsed ? COLLAPSED_HEIGHT : DEFAULT_HEIGHT,
     window.innerHeight - VIEWPORT_GUTTER * 2,
   );
   return {
+    position: "fixed",
+    right: 24,
+    bottom: 24,
     width,
     height,
-    x: Math.min(
-      Math.max(VIEWPORT_GUTTER, layout.x),
-      Math.max(VIEWPORT_GUTTER, window.innerWidth - width - VIEWPORT_GUTTER),
-    ),
-    y: Math.min(
-      Math.max(VIEWPORT_GUTTER, layout.y),
-      Math.max(VIEWPORT_GUTTER, window.innerHeight - height - VIEWPORT_GUTTER),
-    ),
   };
 }
 
@@ -85,20 +69,20 @@ export function FloatingMarketplaceClerk({
   open,
   locale,
   onOpenChange,
+  launcherLabel,
   children,
 }: FloatingMarketplaceClerkProps) {
   const isDesktop = useMediaQuery("(min-width: 48rem)");
   const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
   const [collapsed, setCollapsed] = useState(false);
-  const [layout, setLayout] = useState<ClerkLayout>(initialLayout);
   const isZh = locale === "zh";
+  const defaultLauncher = isZh ? "帮我找" : "Find items";
+  const launcherText = launcherLabel ?? defaultLauncher;
+  const launcherAria =
+    launcherLabel ?? (isZh ? "打开找商品" : "Open product search");
 
   useEffect(() => {
     setPortalNode(document.body);
-    setLayout(initialLayout());
-    const keepInViewport = () => setLayout((current) => clampLayout(current));
-    window.addEventListener("resize", keepInViewport);
-    return () => window.removeEventListener("resize", keepInViewport);
   }, []);
 
   useEffect(() => {
@@ -122,11 +106,11 @@ export function FloatingMarketplaceClerk({
           type="button"
           aria-controls="marketplace-clerk-panel"
           aria-expanded={open}
-          aria-label={isZh ? "打开找商品" : "Open product search"}
+          aria-label={launcherAria}
           onClick={showClerk}
         >
           <Search aria-hidden="true" />
-          <span>{isZh ? "帮我找" : "Find items"}</span>
+          <span>{launcherText}</span>
         </Button>,
         portalNode,
       )
@@ -192,37 +176,9 @@ export function FloatingMarketplaceClerk({
       {launcher}
       {createPortal(
         <div className="floating-clerk-viewport" aria-hidden={!open}>
-          <Rnd
-            bounds="parent"
-            cancel=".floating-clerk-action, .root-marketplace-search"
+          <div
             className={`floating-clerk-rnd${open ? " is-open" : " is-stowed"}`}
-            disableDragging={!open}
-            dragHandleClassName="floating-clerk-drag-handle"
-            enableResizing={open && !collapsed}
-            minWidth={340}
-            minHeight={440}
-            maxWidth="calc(100vw - 2rem)"
-            maxHeight="calc(100dvh - 2rem)"
-            position={{ x: layout.x, y: layout.y }}
-            size={{
-              width: layout.width,
-              height: collapsed ? COLLAPSED_HEIGHT : layout.height,
-            }}
-            onDragStop={(_event, position) =>
-              setLayout((current) => ({
-                ...current,
-                x: position.x,
-                y: position.y,
-              }))
-            }
-            onResizeStop={(_event, _direction, element, _delta, position) =>
-              setLayout({
-                x: position.x,
-                y: position.y,
-                width: element.offsetWidth,
-                height: element.offsetHeight,
-              })
-            }
+            style={desktopPanelStyle(collapsed)}
           >
             <Collapsible
               className="floating-clerk-window"
@@ -289,7 +245,7 @@ export function FloatingMarketplaceClerk({
                 {children}
               </CollapsibleContent>
             </Collapsible>
-          </Rnd>
+          </div>
         </div>,
         portalNode,
       )}
