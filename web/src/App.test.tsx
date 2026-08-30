@@ -251,7 +251,7 @@ describe("MatchPlane workspaces", () => {
       "/",
     );
     expect(
-      await screen.findByRole("button", { name: "说需求" }),
+      await screen.findByRole("button", { name: "帮我找" }),
     ).toHaveAttribute("aria-expanded", "false");
     expect(
       screen.queryByRole("heading", { name: "说说预算和需求" }),
