@@ -53,6 +53,11 @@ RUN curl -fsSL https://get.docker.com | sh \
     && mkdir -p /etc/docker \
     && printf '{\n  "storage-driver": "fuse-overlayfs"\n}\n' > /etc/docker/daemon.json
 
+# The base image puts cargo/rustc on PATH via a container ENV, but login shells
+# (used by install/terminals) reset PATH from /etc/profile. Re-export the Rust
+# toolchain paths for login shells so `cargo`/`rustc` are always resolvable.
+RUN printf 'export RUSTUP_HOME=/usr/local/rustup\nexport CARGO_HOME=/usr/local/cargo\nexport PATH="/usr/local/cargo/bin:$PATH"\n' > /etc/profile.d/rust.sh
+
 # Non-root agent user with passwordless sudo and Docker access.
 RUN useradd --create-home --shell /bin/bash --uid 1000 ubuntu \
     && usermod --append --groups sudo,docker ubuntu \
