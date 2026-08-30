@@ -886,48 +886,46 @@ export function MatchChat({
       {
         id: "describe",
         badge: "Start",
-        title: "Describe what you need",
-        desc: "Share your budget, use case, and non-negotiable requirements",
-        prompt:
-          "Help me clarify my budget, use case, and must-have requirements.",
+        title: "A family SUV within a 150,000 budget",
+        desc: "Say what you need and your budget. Matching products will appear here.",
+        prompt: "A family SUV within a 150,000 budget",
       },
       {
         id: "compare",
         badge: "Compare",
-        title: "Compare shown offers",
-        desc: "Explain trade-offs using only offers and facts already shown",
-        prompt:
-          "Compare the offers already shown and explain the factual trade-offs.",
+        title: "Compare a few suitable options",
+        desc: "Explain the trade-offs using only offers already shown",
+        prompt: "Compare a few suitable options and explain the trade-offs",
       },
       {
         id: "stores",
         badge: "Browse",
-        title: "Browse public stores",
-        desc: "Show currently public stores without making verification claims",
-        prompt: "Show currently public stores and their listed categories.",
+        title: "Find a reliable store",
+        desc: "Find a store for this product without making verification claims",
+        prompt: "Find a reliable store for this product",
       },
     ],
     zh: [
       {
         id: "describe",
         badge: "开始",
-        title: "描述真实需求",
-        desc: "说明预算、用途和不能妥协的条件",
-        prompt: "帮我梳理预算、用途和必须满足的条件。",
+        title: "预算 15 万以内的家用 SUV",
+        desc: "填写预算和需求，匹配的商品会出现在下方。",
+        prompt: "预算 15 万以内，帮我找一台家用 SUV",
       },
       {
         id: "compare",
         badge: "比较",
-        title: "比较已展示商品",
+        title: "比较几款合适的商品",
         desc: "只依据已展示商品和事实说明取舍",
-        prompt: "比较已经展示的商品，并依据已知事实说明取舍。",
+        prompt: "比较几款合适的商品，并说明取舍",
       },
       {
         id: "stores",
         badge: "浏览",
-        title: "查看公开店铺",
+        title: "找一家可靠的店铺",
         desc: "只列出当前公开店铺，不附加未经证实的认证声明",
-        prompt: "列出当前公开店铺及其已上架分类。",
+        prompt: "帮我找一家可靠的店铺",
       },
     ],
   };
@@ -2373,11 +2371,11 @@ export function MatchChat({
                   <span>
                     {item.handoff.status === "failed"
                       ? locale === "en"
-                        ? "You can keep chatting and try the handoff again later."
-                        : "你可以继续对话，稍后再请求人工介入。"
+                        ? "You can keep chatting and try the handoff again later. Only structured shopping intent and selected offer IDs are shared."
+                        : "你可以继续对话，稍后再请求人工介入。只会共享结构化购买意向和已选商品编号。"
                       : locale === "en"
-                        ? "Only your structured shopping intent and selected offer IDs will be shared. Chat text and contact details are excluded."
-                        : "只会共享结构化购买意向和已选商品编号；不会共享聊天原文或联系方式。"}
+                        ? "You can keep chatting here. Only your structured shopping intent and selected offer IDs will be shared. Chat text and contact details are excluded."
+                        : "可以继续在这里咨询。只会共享结构化购买意向和已选商品编号；不会共享聊天原文或联系方式。"}
                   </span>
                   {item.handoff.status === "confirmation_required" ||
                   item.handoff.status === "failed" ? (

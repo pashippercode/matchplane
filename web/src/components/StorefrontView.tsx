@@ -240,10 +240,6 @@ export function StorefrontView({
         )}
       </header>
 
-      {!isInactive ? (
-        <StoreContactRequestsPanel subplatform={subplatform} locale={locale} />
-      ) : null}
-
       {/* When the store is closed or suspended, show a prominent status explanation panel */}
       {status === "closed" && (
         <div className="storefront-closed-panel" role="alert">
@@ -346,6 +342,10 @@ export function StorefrontView({
           </div>
         </div>
       )}
+
+      {!isInactive ? (
+        <StoreContactRequestsPanel subplatform={subplatform} locale={locale} />
+      ) : null}
 
       {isInactive ? null : (
         <main className="storefront-view-products" id="store-products">

@@ -101,7 +101,7 @@ export function useStoreHandoff({
           item.offerId === action.productId || item.id === action.productId,
       );
       if (!selected?.offerId)
-        throw new Error("同意卡关联的商品已经下架，请继续咨询 AI 店长");
+        throw new Error("同意卡关联的商品已经下架，请继续咨询店长");
       const proposedAttemptId = crypto.randomUUID();
       const pending = ensurePendingConversion({
         storePath: subplatform.path,
@@ -224,7 +224,7 @@ export function useStoreHandoff({
         window.dispatchEvent(new Event("matchplane:notifications-updated"));
       }
       onNotice(
-        "联系申请已保存；店员侧投影状态待后台确认，双方同意前不会交换联系方式",
+        "联系申请已保存；店员侧投影状态待后台确认。店员同意后，可在店铺页「联系申请」查看对方联系方式",
       );
       return requestedIntroduction;
     },
@@ -244,7 +244,7 @@ export function useStoreHandoff({
           item.offerId === action.productId || item.id === action.productId,
       );
       if (!selected?.offerId)
-        throw new Error("同意卡关联的商品已经下架，请继续咨询 AI 店长");
+        throw new Error("同意卡关联的商品已经下架，请继续咨询店长");
       const session = await getMarketplaceSession({
         subplatform: subplatform.slug,
         platformPath: subplatform.path,

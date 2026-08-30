@@ -198,30 +198,27 @@ describe("MarketplaceHome actions", () => {
     ["en", []],
     ["zh", [listing]],
     ["en", [listing]],
-  ] as const)(
-    "does not expose root publishing for %s with catalog %s",
-    (locale, listings) => {
-      renderHome({
-        locale,
-        listings: listings as unknown as AssetListing[],
-      });
-
-      expect(
-        screen.queryByRole("button", { name: "发布商品" }),
-      ).not.toBeInTheDocument();
-      expect(
-        screen.queryByRole("button", { name: "List a product" }),
-      ).not.toBeInTheDocument();
-    },
-  );
-
-  it("keeps the Path-to-Hope hero search as the root primary task", () => {
-    renderHome();
+  ] as const)("does not expose root publishing for %s with catalog %s", (locale, listings) => {
+    renderHome({
+      locale,
+      listings: listings as unknown as AssetListing[],
+    });
 
     expect(
-      screen.getByRole("heading", { name: "MatchPlane", level: 1 }),
+      screen.queryByRole("button", { name: "发布商品" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "List a product" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps the search-first Path-to-Hope prompt as the root primary task", () => {
+    renderHome();
+
+    expect(screen.getByText("MatchPlane")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "说说你想找什么。", level: 1 }),
     ).toBeInTheDocument();
-    expect(screen.getByText("发现适合你的商品")).toBeInTheDocument();
     expect(
       screen.getByRole("textbox", { name: "描述想买的东西和预算" }),
     ).toBeInTheDocument();
@@ -229,11 +226,13 @@ describe("MarketplaceHome actions", () => {
     expect(screen.queryByText("这些结果来自哪里")).not.toBeInTheDocument();
   });
 
-  it("surfaces the configured marketplace brand above the search task", () => {
+  it("surfaces the configured marketplace brand above the chat task", () => {
     renderHome({ brandName: "青禾商城" });
 
     expect(screen.getByText("青禾商城")).toBeInTheDocument();
-    expect(screen.getByText(/青禾商城 会检索公开店铺/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/青禾商城 会检索公开店铺/),
+    ).toBeInTheDocument();
   });
 
   it.each([[[]], [[listing]]])(
@@ -314,17 +313,23 @@ describe("MarketplaceHome actions", () => {
   it("opens the shopping clerk with a hero need prompt", async () => {
     const user = userEvent.setup();
     const onWebMcpDescribeNeed = vi.fn();
-    renderHome({ listings: [listing], onWebMcpDescribeNeed });
+    renderHome({
+      listings: [listing],
+      onWebMcpDescribeNeed,
+    });
 
     await user.type(
       screen.getByRole("textbox", { name: "描述想买的东西和预算" }),
       "预算 15 万以内的 SUV",
     );
     await user.click(screen.getByRole("button", { name: "帮我找" }));
-    expect(onWebMcpDescribeNeed).toHaveBeenCalledWith("预算 15 万以内的 SUV");
     expect(
       screen.getByRole("button", { name: "打开找商品" }),
     ).toHaveAttribute("aria-expanded", "true");
+    expect(onWebMcpDescribeNeed).toHaveBeenCalledWith("预算 15 万以内的 SUV");
+    expect(document.querySelector(".root-marketplace-page")).toHaveClass(
+      "is-clerk-open",
+    );
   });
 
   it("uses a keyboard-navigable toggle group for category filtering", async () => {
@@ -363,7 +368,7 @@ describe("MarketplaceHome actions", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("keeps one clerk input and exposes it as a mobile bottom sheet", async () => {
+  it("opens the Path-to-Hope clerk and marks the page while it is open", async () => {
     const user = userEvent.setup();
     const { container } = renderHome({ listings: [listing] });
 
@@ -379,51 +384,12 @@ describe("MarketplaceHome actions", () => {
     expect(container.querySelector(".root-marketplace-page")).toHaveClass(
       "is-clerk-open",
     );
-
-    await user.click(
-      screen.getAllByRole("button", {
-        name: "关闭",
-      })[0],
-    );
-    expect(toggle).toHaveAttribute("aria-expanded", "false");
-  });
-
-  it("uses a collapsible viewport workspace on desktop", async () => {
-    const originalMatchMedia = window.matchMedia;
-    Object.defineProperty(window, "matchMedia", {
-      configurable: true,
-      value: (query: string) => ({
-        matches: query === "(min-width: 48rem)",
-        media: query,
-        onchange: null,
-        addListener: () => undefined,
-        removeListener: () => undefined,
-        addEventListener: () => undefined,
-        removeEventListener: () => undefined,
-        dispatchEvent: () => false,
-      }),
-    });
-    const user = userEvent.setup();
-    const view = renderHome({ listings: [listing] });
-
-    const toggle = screen.getByRole("button", { name: "打开找商品" });
-    await user.click(toggle);
     expect(document.querySelector(".floating-clerk-rnd")).toHaveClass(
       "is-open",
     );
-    expect(screen.getByRole("button", { name: "收起" })).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "收起" }));
-    expect(screen.getByRole("button", { name: "展开" })).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "关闭" }));
+    await user.click(screen.getAllByRole("button", { name: "关闭" })[0]);
     expect(toggle).toHaveAttribute("aria-expanded", "false");
-
-    view.unmount();
-    Object.defineProperty(window, "matchMedia", {
-      configurable: true,
-      value: originalMatchMedia,
-    });
   });
 
   it("adds the loaded directory store to WebMCP and aborts prior registrations", async () => {

@@ -302,36 +302,56 @@ export function MarketplaceHome({
       id="top"
     >
       <div className="root-marketplace-atmosphere" aria-hidden="true" />
-      <section
-        className={`marketplace-hero${searchTrace ? " has-results" : ""}`}
-        aria-labelledby="root-marketplace-title"
-      >
-        <div className="marketplace-hero-inner">
-          <p className="marketplace-hero-kicker">
-            {locale === "en" ? "MARKETPLACE" : "商城"}
-          </p>
-          <h1 id="root-marketplace-title" className="marketplace-hero-brand">
-            {brandName}
-          </h1>
-          <p className="marketplace-hero-title">
-            {locale === "en"
-              ? "Find products that fit."
-              : "发现适合你的商品"}
-          </p>
-          <p className="marketplace-hero-support">
-            {locale === "en"
-              ? `${brandName} searches public stores and keeps every visible result tied to its source.`
-              : `${brandName} 会检索公开店铺，并保留每个可见结果的真实来源。`}
-          </p>
-          <div className="marketplace-hero-cta">
-            <MarketplaceNeedPrompt
-              locale={locale}
-              onSubmit={(text) => {
-                onWebMcpDescribeNeed(text);
-                setClerkOpen(true);
-              }}
-            />
-          </div>
+      <div className="root-marketplace-main">
+        <section
+          className={`root-marketplace-entry${searchTrace ? " has-results" : ""}`}
+          aria-labelledby="root-marketplace-title"
+        >
+          <section
+            className="marketplace-hero"
+            aria-label={locale === "en" ? "MatchPlane" : "MatchPlane 商城"}
+          >
+            <div className="marketplace-hero-inner">
+              <p className="marketplace-hero-kicker">
+                {locale === "en" ? "MARKETPLACE" : "商城"}
+              </p>
+              <p className="marketplace-hero-brand root-marketplace-brand">
+                {brandName}
+              </p>
+              <h1 id="root-marketplace-title" className="marketplace-hero-title">
+                {locale === "en"
+                  ? "Describe what you are looking for."
+                  : "说说你想找什么。"}
+              </h1>
+              <p className="marketplace-hero-support">
+                {locale === "en"
+                  ? `${brandName} searches public stores and keeps every visible result tied to its source.`
+                  : `${brandName} 会检索公开店铺，并保留每个可见结果的真实来源。`}
+              </p>
+              <ul className="root-marketplace-entry-facts">
+                <li>
+                  {locale === "en"
+                    ? "Browse without signing in"
+                    : "无需登录即可浏览"}
+                </li>
+                <li>
+                  {locale === "en" ? "Public listings only" : "只检索公开商品"}
+                </li>
+                <li>
+                  {locale === "en" ? "Sources stay visible" : "结果来源始终可见"}
+                </li>
+              </ul>
+              <div className="marketplace-hero-cta">
+                <MarketplaceNeedPrompt
+                  locale={locale}
+                  onSubmit={(text) => {
+                    onWebMcpDescribeNeed(text);
+                    setClerkOpen(true);
+                  }}
+                />
+              </div>
+            </div>
+          </section>
           {searchTrace ? (
             <MarketplaceSearchTrace
               trace={searchTrace}
@@ -339,9 +359,12 @@ export function MarketplaceHome({
               onOpenStore={onOpenStore}
             />
           ) : null}
-        </div>
-      </section>
-      <div className="root-marketplace-main">
+          <a className="root-marketplace-scroll-cue" href="#products">
+            {locale === "en" ? "Browse what is live" : "浏览当前在售"}
+            <span aria-hidden="true">↓</span>
+          </a>
+        </section>
+
         <div className="root-marketplace-catalog">
           {categories.length > 1 ? (
             <ToggleGroup
@@ -395,7 +418,12 @@ export function MarketplaceHome({
         locale={locale}
         onOpenChange={setClerkOpen}
       >
-        <div className="root-marketplace-chat-shell">{assistant}</div>
+        <section
+          className="root-marketplace-search"
+          aria-label={locale === "en" ? "Product search" : "商品搜索"}
+        >
+          <div className="root-marketplace-chat-shell">{assistant}</div>
+        </section>
       </FloatingMarketplaceClerk>
     </div>
   );

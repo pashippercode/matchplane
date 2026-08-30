@@ -154,6 +154,20 @@ describe("mall assistant store directory budget", () => {
     });
   });
 
+  it("still answers when the model gateway is unset so search can use the tool path", async () => {
+    mocks.isPlatformRouterConfigured.mockReturnValue(false);
+    mocks.answerPlatformShoppingQuestion.mockResolvedValue({
+      ...successfulReply(),
+      model: null,
+      modelCalls: 0,
+    });
+
+    const response = await POST(assistantRequest());
+
+    expect(response.status).toBe(200);
+    expect(mocks.answerPlatformShoppingQuestion).toHaveBeenCalledOnce();
+  });
+
   it("rejects the 501st global store before assistant scoring", async () => {
     mocks.readPublicStores.mockResolvedValue(Array.from({ length: 501 }, () => ({})));
     const stderr = vi

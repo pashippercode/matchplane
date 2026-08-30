@@ -303,6 +303,40 @@ describe("MatchChat sending state", () => {
     ]);
   });
 
+  it("keeps a failed request retryable without turning the error into an assistant message", async () => {
+    const user = userEvent.setup();
+    askMallShoppingAssistant.mockRejectedValueOnce(
+      new Error("商品搜索暂时不可用"),
+    );
+    render(<MatchChat home onNotice={vi.fn()} subplatform={subplatform} />);
+    const input = screen.getByRole("textbox", {
+      name: "告诉 MatchPlane 你的需求",
+    });
+
+    await user.type(input, "帮我找啊");
+    await user.click(screen.getByRole("button", { name: "发送需求" }));
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("商品搜索暂时不可用");
+    expect(input).toHaveValue("帮我找啊");
+    expect(
+      document.querySelector(".match-chat-message.is-assistant"),
+    ).toBeNull();
+
+    askMallShoppingAssistant.mockResolvedValueOnce({
+      requestId: "44444444-4444-4444-8444-444444444444",
+      answer: "可以。你具体想找什么？",
+      recommendations: [],
+      uiActions: [],
+    });
+    await user.click(screen.getByRole("button", { name: "重试回答" }));
+
+    expect(
+      await screen.findByText("可以。你具体想找什么？"),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
   it("renders a typed empty catalog result as a completed answer", async () => {
     const user = userEvent.setup();
     askMallShoppingAssistant.mockResolvedValueOnce({
@@ -551,7 +585,7 @@ describe("MatchChat sending state", () => {
       ],
       uiActions: [],
     });
-    render(<MatchChat onNotice={vi.fn()} subplatform={subplatform} />);
+    render(<MatchChat home onNotice={vi.fn()} subplatform={subplatform} />);
 
     await user.type(
       screen.getByRole("textbox", { name: "告诉 MatchPlane 你的需求" }),
