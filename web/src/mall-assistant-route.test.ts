@@ -295,6 +295,23 @@ describe("mall assistant provider failure mapping", () => {
     });
     expect(mocks.answerPlatformShoppingQuestion).not.toHaveBeenCalled();
   });
+
+  it("lets a completely unconfigured gateway use the deterministic search path", async () => {
+    mocks.getPlatformRouterEffectiveStatus.mockReturnValue({
+      ready: false,
+      source: "unconfigured",
+      issues: ["provider_not_configured"],
+      credentialConfigured: false,
+    });
+    mocks.isPlatformRouterConfigured.mockReturnValue(false);
+    mocks.answerPlatformShoppingQuestion.mockResolvedValue(successfulReply());
+
+    const response = await POST(assistantRequest());
+
+    expect(response.status).toBe(200);
+    expect(mocks.answerPlatformShoppingQuestion).toHaveBeenCalledOnce();
+  });
+
   it("maps provider timeout to a retryable 504 with no-store and Retry-After", async () => {
     mocks.answerPlatformShoppingQuestion.mockRejectedValue(
       new mocks.PlatformAssistantUnavailableError("响应超时，请稍后重试。", {

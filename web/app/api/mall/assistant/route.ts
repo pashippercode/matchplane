@@ -5,7 +5,6 @@ import { NextResponse } from "next/server";
 import { admitPlatformAiCall } from "../../../../src/platform-ai-admission";
 import {
   answerPlatformShoppingQuestion,
-  isPlatformRouterConfigured,
   PlatformAssistantUnavailableError,
   PlatformRouterQuotaExceededError,
   type ShoppingConversationMessage,
@@ -44,7 +43,12 @@ export async function POST(request: Request): Promise<Response> {
     return error("请求来源未被商城信任", 403);
   const requestId = randomUUID();
   const providerStatus = getPlatformRouterEffectiveStatus();
-  if (!providerStatus.ready)
+  const unconfiguredOnly =
+    providerStatus.source === "unconfigured" &&
+    !providerStatus.credentialConfigured;
+  // Degraded managed/environment config stays fail-closed. A completely
+  // unconfigured gateway still uses the Challenge #11 deterministic search path.
+  if (!providerStatus.ready && !unconfiguredOnly)
     return error(
       "商城 AI 导购正在配置中，请稍后再试。",
       503,
@@ -80,8 +84,6 @@ export async function POST(request: Request): Promise<Response> {
   const requestedStorePath = normalizeStorePath(body.storePath);
   if (body.storePath !== undefined && !requestedStorePath)
     return error("店铺地址无效", 400);
-  if (!isPlatformRouterConfigured())
-    return error("商品搜索尚未配置完整，请稍后再试。", 503);
   const tenantId = configuredTenantId();
   if (!tenantId) return error("商城尚未完成初始化", 503);
   const identity = await shoppingIdentity(request);
