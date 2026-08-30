@@ -33,6 +33,7 @@ interface FloatingMarketplaceClerkProps {
   open: boolean;
   locale: InterfaceLocale;
   onOpenChange: (open: boolean) => void;
+  launcherLabel?: string;
   children: ReactNode;
 }
 
@@ -85,6 +86,7 @@ export function FloatingMarketplaceClerk({
   open,
   locale,
   onOpenChange,
+  launcherLabel,
   children,
 }: FloatingMarketplaceClerkProps) {
   const isDesktop = useMediaQuery("(min-width: 48rem)");
@@ -92,6 +94,7 @@ export function FloatingMarketplaceClerk({
   const [collapsed, setCollapsed] = useState(false);
   const [layout, setLayout] = useState<ClerkLayout>(initialLayout);
   const isZh = locale === "zh";
+  const launcherText = launcherLabel ?? (isZh ? "帮我找" : "Find items");
 
   useEffect(() => {
     setPortalNode(document.body);
@@ -119,14 +122,17 @@ export function FloatingMarketplaceClerk({
     ? createPortal(
         <Button
           className={`root-marketplace-clerk-toggle${open ? " is-hidden" : ""}`}
+          variant="primary"
+          size="sm"
           type="button"
           aria-controls="marketplace-clerk-panel"
+          aria-haspopup="dialog"
           aria-expanded={open}
           aria-label={isZh ? "打开找商品" : "Open product search"}
           onClick={showClerk}
         >
           <Search aria-hidden="true" />
-          <span>{isZh ? "帮我找" : "Find items"}</span>
+          <span>{launcherText}</span>
         </Button>,
         portalNode,
       )
@@ -149,6 +155,9 @@ export function FloatingMarketplaceClerk({
             closeButton={false}
             frame={false}
             backdrop
+            backdropProps={{
+              className: "root-marketplace-clerk-backdrop",
+            }}
           >
             <DrawerHeader className="mobile-clerk-drawer-header">
               <div>
