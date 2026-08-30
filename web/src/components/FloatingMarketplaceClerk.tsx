@@ -48,10 +48,11 @@ export function FloatingMarketplaceClerk({
   const description = isZh
     ? "填写预算、用途或偏好。"
     : "Enter your budget, use case, or preferences.";
-  const defaultLauncherLabel = isZh ? "打开找商品" : "Open product search";
-  const launcherText = launcherLabel ?? defaultLauncherLabel;
-  const launcherVisible = launcherLabel ?? (isZh ? "帮我找" : "Find items");
+  const launcherText = launcherLabel ?? (isZh ? "帮我找" : "Find items");
+  const launcherAria =
+    launcherLabel ?? (isZh ? "打开找商品" : "Open product search");
   const closeLabel = isZh ? "关闭" : "Close";
+  const panelClass = `floating-clerk-rnd${open ? " is-open" : " is-stowed"}`;
 
   useEffect(() => {
     setPortalNode(document.body);
@@ -64,14 +65,14 @@ export function FloatingMarketplaceClerk({
           variant="primary"
           size="sm"
           type="button"
-          aria-label={launcherText}
+          aria-label={launcherAria}
+          aria-controls="marketplace-clerk-panel"
           aria-haspopup="dialog"
           aria-expanded={open}
-          aria-controls="marketplace-clerk-panel"
           onClick={() => onOpenChange(true)}
         >
           <Search size={17} aria-hidden="true" />
-          <span>{launcherVisible}</span>
+          <span>{launcherText}</span>
         </Button>,
         portalNode,
       )
@@ -82,7 +83,7 @@ export function FloatingMarketplaceClerk({
       {isDesktop ? (
         <Dialog open={open} onOpenChange={onOpenChange}>
           <DialogContent
-            className="desktop-clerk-dialog"
+            className={`desktop-clerk-dialog ${panelClass}`}
             closeButton={false}
             closeLabel={closeLabel}
             frame={false}
@@ -120,7 +121,7 @@ export function FloatingMarketplaceClerk({
       ) : (
         <Drawer open={open} onOpenChange={onOpenChange} side="bottom">
           <DrawerContent
-            className="mobile-clerk-drawer"
+            className={`mobile-clerk-drawer ${panelClass}`}
             backdropProps={{
               className: "root-marketplace-clerk-backdrop",
             }}

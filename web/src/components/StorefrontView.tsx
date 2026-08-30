@@ -202,8 +202,8 @@ export function StorefrontView({
                   </DialogTitle>
                   <DialogDescription>
                     {english
-                      ? "The AI manager can keep helping while store staff join when needed. Contact details are never shared without your confirmation."
-                      : "AI 店长会持续回答；需要时可通知店员介入。未经你确认，不会交换联系方式。"}
+                      ? "The store team can answer here and join when needed. Contact details are never shared without your confirmation."
+                      : "在线解答商品问题；需要时可联系店员。未经你确认，不会交换联系方式。"}
                   </DialogDescription>
                 </div>
                 <DialogClose
@@ -342,48 +342,6 @@ export function StorefrontView({
           </div>
         </div>
       )}
-
-      {managerOpen && !isInactive ? (
-        <section
-          className="storefront-manager-chat"
-          id="store-manager-chat"
-          aria-labelledby="store-manager-chat-title"
-        >
-          <div className="storefront-manager-chat-heading">
-            <div>
-              <p>{english ? "STORE CHAT" : "店铺咨询"}</p>
-              <h2 id="store-manager-chat-title">
-                {english
-                  ? `Ask ${subplatform.brandName || subplatform.label}`
-                  : `咨询${subplatform.brandName || subplatform.label}`}
-              </h2>
-              <span>
-                {english
-                  ? "The store team can answer here and join when needed. Contact details are never shared without your confirmation."
-                  : "在线解答商品问题；需要时可联系店员。未经你确认，不会交换联系方式。"}
-              </span>
-            </div>
-            <button
-              type="button"
-              aria-label={english ? "Close manager chat" : "关闭店长对话"}
-              onClick={() => setManagerOpen(false)}
-            >
-              <X size={18} aria-hidden="true" />
-            </button>
-          </div>
-          <MatchChat
-            compact
-            locale={locale}
-            role="buyer"
-            subplatform={subplatform}
-            onNotice={onNotice}
-            onOpenListing={onOpenListing}
-            onLikeListing={onLikeListing}
-            onHumanHandoff={onHumanHandoff}
-            onContactConsent={onContactConsent}
-          />
-        </section>
-      ) : null}
 
       {!isInactive ? (
         <StoreContactRequestsPanel subplatform={subplatform} locale={locale} />
