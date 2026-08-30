@@ -244,7 +244,7 @@ export function useStoreHandoff({
           item.offerId === action.productId || item.id === action.productId,
       );
       if (!selected?.offerId)
-        throw new Error("同意卡关联的商品已经下架，请继续咨询 AI 店长");
+        throw new Error("同意卡关联的商品已经下架，请继续咨询店长");
       const session = await getMarketplaceSession({
         subplatform: subplatform.slug,
         platformPath: subplatform.path,
