@@ -44,14 +44,13 @@ export function FloatingMarketplaceClerk({
   const isDesktop = useMediaQuery("(min-width: 48rem)");
   const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
   const isZh = locale === "zh";
-  const title = isZh ? "找商品" : "Find products";
+  const title = isZh ? "选货员" : "Shopping clerk";
   const description = isZh
     ? "填写预算、用途或偏好。"
     : "Enter your budget, use case, or preferences.";
   const launcherText = launcherLabel ?? (isZh ? "帮我找" : "Find items");
-  const launcherAria =
-    launcherLabel ?? (isZh ? "打开找商品" : "Open product search");
-  const closeLabel = isZh ? "关闭" : "Close";
+  const launcherAria = launcherLabel ?? (isZh ? "问选货员" : "Ask the clerk");
+  const closeLabel = isZh ? "关闭选货员" : "Close shopping clerk";
   const panelClass = `floating-clerk-rnd${open ? " is-open" : " is-stowed"}`;
 
   useEffect(() => {

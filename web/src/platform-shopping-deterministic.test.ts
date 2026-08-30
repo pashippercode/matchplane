@@ -17,6 +17,12 @@ vi.mock("@ai-sdk/openai-compatible", () => ({
 
 vi.mock("./lib/platform-router-config", () => ({
   readManagedPlatformRouterConfig: () => null,
+  getPlatformRouterEffectiveStatus: () => ({
+    ready: false,
+    source: "unconfigured",
+    issues: ["provider_not_configured"],
+    credentialConfigured: false,
+  }),
 }));
 
 vi.mock("./storefront-search", () => ({

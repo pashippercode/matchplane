@@ -184,7 +184,7 @@ function assistantRoleLabel(
   if (platformSlug === "root") {
     return localeText(locale, "Shopping Assistant", "选货员");
   }
-  return localeText(locale, "AI Store Manager", "AI 店长");
+  return localeText(locale, "Store Manager", "店长");
 }
 
 function handoffStatusLabel(
@@ -2376,8 +2376,8 @@ export function MatchChat({
                         ? "You can keep chatting and try the handoff again later."
                         : "你可以继续对话，稍后再请求人工介入。"
                       : locale === "en"
-                        ? "You can keep chatting here. No contact details were shared."
-                        : "可以继续在这里咨询，本次没有交换任何联系方式。"}
+                        ? "Only a structured purchase intent and selected product IDs will be shared. No contact details."
+                        : "只会共享结构化购买意向和已选商品编号，不会交换联系方式。"}
                   </span>
                   {item.handoff.status === "confirmation_required" ||
                   item.handoff.status === "failed" ? (
