@@ -2,6 +2,10 @@ import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@appica/ui-react/hooks/use-media-query", () => ({
+  useMediaQuery: () => true,
+}));
+
 import { getStores } from "../api";
 import type { AssetListing } from "../types";
 import {
@@ -323,9 +327,7 @@ describe("MarketplaceHome actions", () => {
       "预算 15 万以内的 SUV",
     );
     await user.click(screen.getByRole("button", { name: "帮我找" }));
-    expect(
-      screen.getByRole("button", { name: "打开找商品" }),
-    ).toHaveAttribute("aria-expanded", "true");
+    expect(await screen.findByRole("dialog", { name: "找商品" })).toBeInTheDocument();
     expect(onWebMcpDescribeNeed).toHaveBeenCalledWith("预算 15 万以内的 SUV");
     expect(document.querySelector(".root-marketplace-page")).toHaveClass(
       "is-clerk-open",
@@ -379,8 +381,11 @@ describe("MarketplaceHome actions", () => {
     expect(toggle).toHaveAttribute("aria-expanded", "false");
 
     await user.click(toggle);
-    expect(toggle).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getAllByRole("textbox").length).toBeGreaterThanOrEqual(2);
+    const clerk = await screen.findByRole("dialog", { name: "找商品" });
+    expect(clerk).toHaveClass("desktop-clerk-dialog");
+    expect(
+      within(clerk).getByRole("textbox", { name: "购物需求" }),
+    ).toBeInTheDocument();
     expect(container.querySelector(".root-marketplace-page")).toHaveClass(
       "is-clerk-open",
     );
@@ -388,7 +393,10 @@ describe("MarketplaceHome actions", () => {
       "is-open",
     );
 
-    await user.click(screen.getAllByRole("button", { name: "关闭" })[0]);
+    await user.click(screen.getByRole("button", { name: "关闭" }));
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog", { name: "找商品" })).not.toBeInTheDocument(),
+    );
     expect(toggle).toHaveAttribute("aria-expanded", "false");
   });
 
