@@ -1,0 +1,25 @@
+{
+  "name": "MatchPlane",
+  "user": "ubuntu",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "install": "bash .cursor/install.sh",
+  "start": "bash .cursor/start.sh",
+  "terminals": [
+    {
+      "name": "gateway",
+      "command": "set -a; source .env; set +a; export PATH=\"$PWD/target/debug:$PATH\"; MATCHPLANE_HTTP_ADDR=0.0.0.0:8080 matchplane serve gateway"
+    },
+    {
+      "name": "payment-service",
+      "command": "set -a; source .env; set +a; export PATH=\"$PWD/target/debug:$PATH\"; MATCHPLANE_HTTP_ADDR=0.0.0.0:8081 matchplane serve payment-service"
+    },
+    {
+      "name": "web",
+      "command": "set -a; source .env; set +a; export BETTER_AUTH_URL=http://localhost:4173 MATCHPLANE_GATEWAY_INTERNAL_URL=http://127.0.0.1:8080 MATCHPLANE_GATEWAY_ADMIN_TOKEN=matchplane-development-gateway-admin MATCHPLANE_PAYMENT_INTERNAL_URL=http://127.0.0.1:8081 MATCHPLANE_PAYMENT_ADMIN_TOKEN=matchplane-development-admin; bun run --cwd web dev"
+    }
+  ],
+  "ports": [4173, 8080, 8081, 5432]
+}
